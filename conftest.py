@@ -33,21 +33,28 @@ def driver():
     Для запуска без окна используйте HEADLESS=1.
     """
     browser = os.getenv("BROWSER", "chrome").lower()
+    headless = os.getenv("HEADLESS", "0") == "1"
 
     if browser == "chrome":
         options = ChromeOptions()
-        options.add_argument("--start-maximized")
         options.add_argument("--disable-infobars")
         options.add_argument("--disable-extensions")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
-        if os.getenv("HEADLESS", "0") == "1":
+        if headless:
+            # Фиксированный размер окна: при maximized-геометрии в headless
+            # ломается логика определения активной вкладки конструктора
             options.add_argument("--headless=new")
+            options.add_argument("--window-size=1920,1080")
+        else:
+            options.add_argument("--start-maximized")
         browser_instance = webdriver.Chrome(options=options)
     elif browser == "firefox":
         options = FirefoxOptions()
-        if os.getenv("HEADLESS", "0") == "1":
+        if headless:
             options.add_argument("--headless")
+            options.add_argument("--width=1920")
+            options.add_argument("--height=1080")
         browser_instance = webdriver.Firefox(options=options)
     else:
         raise ValueError(
@@ -56,7 +63,8 @@ def driver():
         )
 
     browser_instance.implicitly_wait(data.IMPLICIT_WAIT)
-    browser_instance.maximize_window()
+    if not headless:
+        browser_instance.maximize_window()
 
     yield browser_instance
 
