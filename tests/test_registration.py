@@ -25,8 +25,10 @@ class TestRegistration:
         WebDriverWait(driver, data.EXPLICIT_WAIT).until(
             EC.url_contains("/login")
         )
-        # На странице входа должна быть кнопка «Войти»
-        assert driver.find_element(*locators.BUTTON_LOGIN).is_displayed()
+        # На странице входа должна быть видна кнопка «Войти»
+        WebDriverWait(driver, data.EXPLICIT_WAIT).until(
+            EC.visibility_of_element_located(locators.BUTTON_LOGIN)
+        )
 
     def test_registration_short_password_error(self, driver, email):
         """

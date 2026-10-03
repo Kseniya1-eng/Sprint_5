@@ -22,7 +22,9 @@ class TestPersonalCabinet:
             EC.url_contains("/account/profile")
         )
         # В личном кабинете доступна кнопка «Выход»
-        assert driver.find_element(*locators.BUTTON_LOGOUT).is_displayed()
+        WebDriverWait(driver, data.EXPLICIT_WAIT).until(
+            EC.visibility_of_element_located(locators.BUTTON_LOGOUT)
+        )
 
     def test_navigate_to_constructor_by_link(self, driver, logged_in_user):
         """

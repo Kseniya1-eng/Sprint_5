@@ -78,10 +78,22 @@ def wait_element(driver, locator):
 
 
 def fill(driver, locator, value):
-    """Ожидает поле ввода и вводит в него значение."""
+    """Ожидает поле ввода и вводит в него значение.
+
+    React-приложение при повторном рендере может сбросить введённый текст
+    (поле остаётся пустым). Поэтому после ввода дожидаемся, что значение
+    реально попало в поле: при необходимости WebDriverWait повторит ввод
+    через свой же опрос, пока значение не «прилипнет».
+    """
     element = wait_element(driver, locator)
-    element.clear()
-    element.send_keys(value)
+
+    def set_value(d):
+        field = d.find_element(*locator)
+        field.clear()
+        field.send_keys(value)
+        return field.get_attribute("value") == value
+
+    WebDriverWait(driver, data.EXPLICIT_WAIT).until(set_value)
     return element
 
 
